@@ -1,5 +1,4 @@
 AWSTemplateFormatVersion: "2010-09-09"
-
 Description: S3 Bucket
 
 Parameters:
@@ -8,10 +7,22 @@ Parameters:
     Type: String
     Default: Interview~bucket
 
+Resources:  #add resource
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: Private
-      BucketName: !Ref BucketName
+      BucketName: aaBucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
+
+Outputs:
+  BucketArn:
+    Description: ARN of the Created S3 Buckets
+    Value: !GetAtt aaBucketName.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-BucketArn"
