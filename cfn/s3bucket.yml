@@ -1,28 +1,51 @@
-AWSTemplateFormatVersion: "2010-09-09"
-Description: S3 Bucket
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation Template for IAM User and Permissions
 
-Parameters:
-
-  BucketName: 
-    Type: String
-    Default: Interview~bucket
-
-Resources:  #add resource
-  S3Bucket:
-    Type: AWS::S3::Bucket
+Resources:
+  JeffUser:
+    Type: AWS::IAM::User
     Properties:
-      AccessControl: Private
-      BucketName: aaBucketName
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+      UserName: jeff
+
+  JeffBucketPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: JeffBucketPolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+            Resource: !Sub "arn:aws:s3:::aaBucketName/*"
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource: !Sub "arn:aws:s3:::aaBucketName/*"
+          - Effect: Deny
+            Action:
+              - s3:DeleteObject
+            Resource: !Sub "arn:aws:s3:::aaBucketName/*"
+      Users:
+        - Ref: JeffUser
+
+  ReadOnlyAccessPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+            Resource: "*"
 
 Outputs:
-  BucketArn:
-    Description: ARN of the Created S3 Buckets
-    Value: !GetAtt aaBucketName.Arn
-    Export:
-      Name: !Sub "${AWS::StackName}-BucketArn"
+  JeffUserAccessKey:
+    Description: Access Key ID of the Jeff user
+    Value: !Ref JeffUser
+
+  ReadOnlyAccessPolicyArn:
+    Description: ARN of the Read Only Access policy
+    Value: !Ref ReadOnlyAccessPolicy.Arn
+
